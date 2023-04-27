@@ -24,8 +24,8 @@ class StandardJsonPlugin implements SerializerPlugin {
   /// The field used to specify the value type if needed. Defaults to `$`.
   final String discriminator;
 
-  // The key used when there is just a single value, for example if serializing
-  // an `int`.
+  /// The key used when there is just a single value, for example if serializing
+  /// an `int`.
   final String valueKey;
 
   StandardJsonPlugin({this.discriminator = r'$', this.valueKey = ''});
@@ -61,8 +61,7 @@ class StandardJsonPlugin implements SerializerPlugin {
       if (specifiedType.isUnspecified) {
         return _toListUsingDiscriminator(object);
       } else {
-        return _toList(object, _needsEncodedKeys(specifiedType),
-            keepNulls: specifiedType.root == BuiltMap);
+        return _toList(object, _needsEncodedKeys(specifiedType));
       }
     } else {
       return object;
@@ -147,17 +146,11 @@ class StandardJsonPlugin implements SerializerPlugin {
   ///
   /// By default keys with null values are dropped, pass [keepNulls] true when
   /// the map is an actual map with nullable values, so they should be kept.
-  List<Object?> _toList(Map map, bool hasEncodedKeys,
-      {bool keepNulls = false}) {
-    var nullValueCount =
-        keepNulls ? 0 : map.values.where((value) => value == null).length;
+  List<Object?> _toList(Map map, bool hasEncodedKeys) {
     var result = List<Object?>.filled(
-        (map.length - nullValueCount) * 2, 0 /* Will be overwritten. */);
+        (map.length - 0) * 2, 0 /* Will be overwritten. */);
     var i = 0;
     map.forEach((key, value) {
-      // Drop null values, they are represented by missing keys.
-      if (!keepNulls && value == null) return;
-
       result[i] = hasEncodedKeys ? _decodeKey(key as String) : key;
       result[i + 1] = value;
       i += 2;
