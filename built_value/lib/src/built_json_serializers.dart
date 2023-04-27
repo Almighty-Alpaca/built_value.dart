@@ -102,6 +102,8 @@ class BuiltJsonSerializers implements Serializers {
             : serializer
                 .serialize(this, object, specifiedType: specifiedType)
                 .toList();
+      } else if (serializer is NullablePrimitiveSerializer) {
+        return serializer.serialize(this, object, specifiedType: specifiedType);
       } else if (serializer is PrimitiveSerializer) {
         return object == null
             ? null
@@ -144,6 +146,13 @@ class BuiltJsonSerializers implements Serializers {
         } on Error catch (error) {
           throw DeserializationError(object, specifiedType, error);
         }
+      } else if (serializer is NullablePrimitiveSerializer) {
+        try {
+          var primitive = object[1];
+          return serializer.deserialize(this, primitive);
+        } on Error catch (error) {
+          throw DeserializationError(object, specifiedType, error);
+        }
       } else if (serializer is PrimitiveSerializer) {
         try {
           var primitive = object[1];
@@ -174,6 +183,13 @@ class BuiltJsonSerializers implements Serializers {
               ? null
               : serializer.deserialize(this, object as Iterable<Object?>,
                   specifiedType: specifiedType);
+        } on Error catch (error) {
+          throw DeserializationError(object, specifiedType, error);
+        }
+      } else if (serializer is NullablePrimitiveSerializer) {
+        try {
+          return serializer.deserialize(this, object,
+              specifiedType: specifiedType);
         } on Error catch (error) {
           throw DeserializationError(object, specifiedType, error);
         }
@@ -261,6 +277,7 @@ class BuiltJsonSerializersBuilder implements SerializersBuilder {
   @override
   void add(Serializer serializer) {
     if (serializer is! StructuredSerializer &&
+        serializer is! NullablePrimitiveSerializer &&
         serializer is! PrimitiveSerializer) {
       throw ArgumentError(
           'serializer must be StructuredSerializer or PrimitiveSerializer');

@@ -306,8 +306,8 @@ class FullType {
 /// `built_value` and enums using `EnumClass` can have implementations
 /// generated using `built_json_generator`.
 ///
-/// Implementations must extend either [PrimitiveSerializer] or
-/// [StructuredSerializer].
+/// Implementations must extend either [PrimitiveSerializer],
+/// [NullablePrimitiveSerializer] or [StructuredSerializer].
 abstract class Serializer<T> {
   /// The [Type]s that can be serialized.
   ///
@@ -343,6 +343,15 @@ abstract class PrimitiveSerializer<T> implements Serializer<T> {
   /// Use [serializers] as needed for nested deserialization. Information about
   /// the type being deserialized is provided in [specifiedType].
   T deserialize(Serializers serializers, Object serialized,
+      {FullType specifiedType = FullType.unspecified});
+}
+
+/// A [Serializer] that is able to handle `null` values.
+abstract class NullablePrimitiveSerializer<T> implements Serializer<T> {
+  Object? serialize(Serializers serializers, T object,
+      {FullType specifiedType = FullType.unspecified});
+
+  T deserialize(Serializers serializers, Object? serialized,
       {FullType specifiedType = FullType.unspecified});
 }
 
